@@ -1,0 +1,75 @@
+service: dynamodb-crud-api
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  environment:
+    DYNAMO_TABLE_NAME: PostsTable
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMO_TABLE_NAME}"
+
+functions:
+  listPosts:
+    handler: post/list.listPosts
+    events:
+      - http:
+          path: posts/list
+          method: get
+          cors: true
+
+  createPost:
+    handler: post/create.createPost
+    events:
+      - http:
+          path: post/create
+          method: post
+          cors: true
+
+  getPost:
+    handler: post/get.getPost
+    events:
+      - http:
+          path: post/{id}
+          method: get
+          cors: true
+
+  updatePost:
+    handler: post/update.updatePost
+    events:
+      - http:
+          path: post/update
+          method: patch
+          cors: true
+
+  deletePost:
+    handler: post/delete.deletePost
+    events:
+      - http:
+          path: post/delete
+          method: delete
+          cors: true
+
+resources:
+  Resources:
+    UsersDynamoDbTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.DYNAMO_TABLE_NAME}
