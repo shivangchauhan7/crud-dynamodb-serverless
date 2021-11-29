@@ -7,7 +7,7 @@ module.exports.updatePost = async event => {
   try {
     const body = JSON.parse(event.body);
 
-    const { postTitle, postBody, imgUrl, tags, id } = body;
+    const { postTitle, postBody, imgUrl, tags, id } = body
     const params = {
       TableName: process.env.DYNAMO_TABLE_NAME,
       Key: {
@@ -28,7 +28,7 @@ module.exports.updatePost = async event => {
     if (data.Attributes) {
       return sendResponse(200, data.Attributes);
     } else {
-      return sendResponse(404, { message: "Post not found" });
+      return sendResponse(404, { message: "Updated post data not found" });
     }
   } catch (e) {
     return sendResponse(500, { message: "Could not update this post" });
